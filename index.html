@@ -20,13 +20,33 @@
     --yellow: #F5C02A;
     --dark: #3A2F29;
     --line: #E2C6B4;
+    --num: #8C6F63;
+    --tl-end: #F3E3D6;
+    --overlay: rgba(255, 250, 245, 0.95);
+    --viewer-bg: radial-gradient(circle at 50% 38%, #F5E4D6 0%, #E2C6B3 55%, #C9A894 100%);
+    --glow: rgba(246, 197, 49, 0.45);
   }
+  [data-theme="dark"] {
+    --bg: #1A1512;
+    --paper: #2A221D;
+    --ink: #FCEEE4;
+    --text: #E4D3C6;
+    --taupe: #C9A894;
+    --taupe-dark: #D2B6A4;
+    --line: #4A3C34;
+    --num: #D2B6A4;
+    --tl-end: #4A3C34;
+    --overlay: rgba(42, 34, 29, 0.95);
+    --viewer-bg: radial-gradient(circle at 50% 38%, #4A3C34 0%, #2A221D 55%, #15110E 100%);
+    --glow: rgba(246, 197, 49, 0.35);
+  }
+  body, .card, .toolbar, .viewer { transition: background-color .3s ease, color .3s ease; }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
     min-height: 100vh; color: var(--text); font-family: 'Open Sans', Arial, sans-serif;
     background:
-      radial-gradient(ellipse 55% 45% at 92% 6%, rgba(246, 197, 49, 0.45), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 92% 6%, var(--glow), transparent 70%),
       var(--bg);
     padding: clamp(20px, 4vw, 64px);
     position: relative; overflow-x: hidden;
@@ -45,7 +65,7 @@
   main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 32px; align-items: start; }
   @media (max-width: 920px) { main { grid-template-columns: 1fr; } .pendant { display: none; } }
 
-  .viewer { position: relative; background: radial-gradient(circle at 50% 38%, #F5E4D6 0%, #E2C6B3 55%, #C9A894 100%); border-radius: 28px; overflow: hidden; }
+  .viewer { position: relative; background: var(--viewer-bg); border-radius: 28px; overflow: hidden; }
   .halo { position: absolute; inset: 0; pointer-events: none; opacity: 0.25;
           background: radial-gradient(circle at 50% 70%, rgba(255, 214, 102, 0.95) 0%, rgba(255, 214, 102, 0) 60%); }
   .viewer.cycle .halo { animation: cycle 9s ease-in-out forwards; }
@@ -67,11 +87,11 @@
     font-family: inherit; font-weight: 700; font-size: 14px; color: var(--ink);
     background: transparent; border: 2px solid var(--ink); border-radius: 999px; padding: 8px 16px; cursor: pointer;
   }
-  button.solid { background: var(--yellow); border-color: var(--yellow); }
+  button.solid { background: var(--yellow); border-color: var(--yellow); color: #1F1914; }
   button.darkbtn { background: var(--ink); color: var(--paper); }
   button:focus-visible { outline: 3px solid var(--taupe); outline-offset: 2px; }
 
-  .missing { position: absolute; inset: 0 0 66px 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(255, 250, 245, 0.95); }
+  .missing { position: absolute; inset: 0 0 66px 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--overlay); }
   .missing.show { display: flex; }
   .missing p { max-width: 40ch; margin: 0 0 10px; }
   .drop { border: 3px dashed var(--taupe); border-radius: 20px; padding: 28px; }
@@ -82,15 +102,15 @@
   .card h2 { font-weight: 800; font-size: 19px; color: var(--ink); margin: 0 0 8px; }
   .card p, .card li { font-size: 15px; line-height: 1.6; text-align: justify; margin: 0; }
   .card ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
-  .num { font-weight: 800; font-size: 30px; color: #8C6F63; line-height: 1; margin: 0 0 6px; }
-  .yellow { background: var(--yellow); border-left-color: var(--ink); }
-  .yellow p { color: var(--ink); }
+  .num { font-weight: 800; font-size: 30px; color: var(--num); line-height: 1; margin: 0 0 6px; }
+  .yellow { background: var(--yellow); border-left-color: #1F1914; }
+  .yellow h2, .yellow p { color: #1F1914; }
 
   /* ciclo de luz */
   .timeline { display: grid; grid-template-columns: 1fr 1.2fr 1fr; height: 14px; border-radius: 999px; overflow: hidden; margin: 12px 0 8px; }
-  .timeline span:nth-child(1) { background: linear-gradient(90deg, #F3E3D6, var(--yellow)); }
+  .timeline span:nth-child(1) { background: linear-gradient(90deg, var(--tl-end), var(--yellow)); }
   .timeline span:nth-child(2) { background: var(--yellow); }
-  .timeline span:nth-child(3) { background: linear-gradient(90deg, var(--yellow), #F3E3D6); }
+  .timeline span:nth-child(3) { background: linear-gradient(90deg, var(--yellow), var(--tl-end)); }
   .tl-labels { display: grid; grid-template-columns: 1fr 1.2fr 1fr; font-size: 13px; font-weight: 700; color: var(--taupe-dark); }
   .tl-labels span:nth-child(2) { text-align: center; }
   .tl-labels span:nth-child(3) { text-align: right; }
@@ -140,6 +160,7 @@
 
       <div class="toolbar">
         <button type="button" class="solid" id="cycle">Simular ciclo de luz</button>
+        <button type="button" id="theme" aria-pressed="false">Modo oscuro</button>
         <button type="button" id="rotate">Pausar giro</button>
         <button type="button" data-orbit="0deg 80deg auto">Frente</button>
         <button type="button" data-orbit="90deg 80deg auto">Lado</button>
@@ -200,6 +221,20 @@
   mv.addEventListener('error', () => missing.classList.add('show'));
   mv.addEventListener('load', () => missing.classList.remove('show'));
 
+  // Modo claro / oscuro
+  const themeBtn = document.getElementById('theme');
+  function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    themeBtn.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    themeBtn.setAttribute('aria-pressed', String(dark));
+    mv.exposure = dark ? 1.2 : 1.05;
+    try { localStorage.setItem('tema-aplique', dark ? 'dark' : 'light'); } catch (e) {}
+  }
+  let saved = null;
+  try { saved = localStorage.getItem('tema-aplique'); } catch (e) {}
+  applyTheme(saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+  themeBtn.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark'));
+
   function stopRotate() { mv.removeAttribute('auto-rotate'); rotateBtn.textContent = 'Reanudar giro'; }
   rotateBtn.addEventListener('click', () => {
     if (mv.hasAttribute('auto-rotate')) { stopRotate(); }
@@ -216,7 +251,7 @@
   // Simulación visual del ciclo: sube, se mantiene y baja (acelerado)
   document.getElementById('cycle').addEventListener('click', () => {
     viewer.classList.remove('cycle'); void viewer.offsetWidth; viewer.classList.add('cycle');
-    const base = 1.05;
+    const base = document.documentElement.getAttribute('data-theme') === 'dark' ? 1.2 : 1.05;
     const t0 = performance.now(), dur = 9000;
     function step(now) {
       const p = Math.min((now - t0) / dur, 1);
