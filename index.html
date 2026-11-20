@@ -1,20 +1,241 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mi página</title>
+<title>Aplique lumínico de despertar progresivo · Modelo 3D</title>
+<meta name="description" content="Modelo 3D interactivo del aplique lumínico para una experiencia de iluminación progresiva al despertar. Jose Gabriel Vergara Naranjo, Diseño Industrial, Universidad del Norte.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 <style>
-  body{margin:0;min-height:100vh;display:grid;place-items:center;
-       background:#f5f5f5;color:#222;font-family:system-ui,sans-serif;text-align:center}
-  h1{font-size:2rem;margin:0 0 8px}
-  p{opacity:.7}
+  :root {
+    --bg: #FCEEE4;
+    --paper: #FFFAF5;
+    --ink: #1F1914;
+    --text: #3D322B;
+    --taupe: #A3877C;
+    --taupe-dark: #7A6157;
+    --yellow: #F5C02A;
+    --dark: #3A2F29;
+    --line: #E2C6B4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--text); font-family: 'Open Sans', Arial, sans-serif;
+    background:
+      radial-gradient(ellipse 55% 45% at 92% 6%, rgba(246, 197, 49, 0.45), transparent 70%),
+      var(--bg);
+    padding: clamp(20px, 4vw, 64px);
+    position: relative; overflow-x: hidden;
+  }
+  /* lámpara colgante */
+  .pendant { position: absolute; top: 0; right: clamp(40px, 8vw, 140px); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+  .pendant .cord { width: 3px; height: clamp(40px, 7vw, 80px); background: var(--ink); }
+  .pendant .bulb { width: clamp(44px, 6vw, 72px); aspect-ratio: 1; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 60px 20px rgba(246, 197, 49, 0.45); }
+
+  .wrap { max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+  header { display: flex; flex-direction: column; gap: 8px; max-width: 900px; }
+  .eb { font-weight: 700; font-size: 13px; letter-spacing: 3px; color: var(--taupe-dark); margin: 0; }
+  h1 { font-weight: 800; font-size: clamp(28px, 4.2vw, 52px); line-height: 1.08; color: var(--ink); margin: 0; }
+  .by { margin: 4px 0 0; font-weight: 600; }
+
+  main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 32px; align-items: start; }
+  @media (max-width: 920px) { main { grid-template-columns: 1fr; } .pendant { display: none; } }
+
+  .viewer { position: relative; background: var(--paper); border-radius: 28px; overflow: hidden; }
+  .halo { position: absolute; inset: 0; pointer-events: none; opacity: 0.25;
+          background: radial-gradient(circle at 50% 70%, rgba(255, 214, 102, 0.95) 0%, rgba(255, 214, 102, 0) 60%); }
+  .viewer.cycle .halo { animation: cycle 9s ease-in-out forwards; }
+  @keyframes cycle {
+    0% { opacity: 0.05; }
+    35% { opacity: 1; }
+    65% { opacity: 1; }
+    100% { opacity: 0.05; }
+  }
+  model-viewer:not(:defined) > * { display: none; }
+  model-viewer {
+    display: block; position: relative; width: 100%; height: min(70vh, 640px); min-height: 380px;
+    background: transparent; --poster-color: transparent; --progress-bar-color: var(--taupe);
+  }
+  .ar-btn { position: absolute; right: 16px; bottom: 16px; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 16px; border-top: 2px solid var(--line); background: var(--paper); position: relative; }
+  button {
+    font-family: inherit; font-weight: 700; font-size: 14px; color: var(--ink);
+    background: transparent; border: 2px solid var(--ink); border-radius: 999px; padding: 8px 16px; cursor: pointer;
+  }
+  button.solid { background: var(--yellow); border-color: var(--yellow); }
+  button.darkbtn { background: var(--ink); color: var(--paper); }
+  button:focus-visible { outline: 3px solid var(--taupe); outline-offset: 2px; }
+
+  .missing { position: absolute; inset: 0 0 66px 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(255, 250, 245, 0.95); }
+  .missing.show { display: flex; }
+  .missing p { max-width: 40ch; margin: 0 0 10px; }
+  .drop { border: 3px dashed var(--taupe); border-radius: 20px; padding: 28px; }
+  .viewer.dragging { outline: 4px dashed var(--taupe); outline-offset: -12px; }
+
+  aside { display: flex; flex-direction: column; gap: 18px; }
+  .card { background: var(--paper); border-radius: 18px; border-left: 8px solid var(--yellow); padding: 18px 22px; }
+  .card h2 { font-weight: 800; font-size: 19px; color: var(--ink); margin: 0 0 8px; }
+  .card p, .card li { font-size: 15px; line-height: 1.6; text-align: justify; margin: 0; }
+  .card ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .num { font-weight: 800; font-size: 30px; color: #8C6F63; line-height: 1; margin: 0 0 6px; }
+  .yellow { background: var(--yellow); border-left-color: var(--ink); }
+  .yellow p { color: var(--ink); }
+
+  /* ciclo de luz */
+  .timeline { display: grid; grid-template-columns: 1fr 1.2fr 1fr; height: 14px; border-radius: 999px; overflow: hidden; margin: 12px 0 8px; }
+  .timeline span:nth-child(1) { background: linear-gradient(90deg, #F3E3D6, var(--yellow)); }
+  .timeline span:nth-child(2) { background: var(--yellow); }
+  .timeline span:nth-child(3) { background: linear-gradient(90deg, var(--yellow), #F3E3D6); }
+  .tl-labels { display: grid; grid-template-columns: 1fr 1.2fr 1fr; font-size: 13px; font-weight: 700; color: var(--taupe-dark); }
+  .tl-labels span:nth-child(2) { text-align: center; }
+  .tl-labels span:nth-child(3) { text-align: right; }
+
+  footer { font-size: 13px; color: var(--taupe-dark); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; border-top: 2px solid var(--line); padding-top: 14px; }
+  footer a { color: var(--ink); }
 </style>
 </head>
 <body>
+<div class="pendant" aria-hidden="true"><div class="cord"></div><div class="bulb"></div></div>
+
+<div class="wrap">
+  <header>
+    <p class="eb">ANTEPROYECTO · DISEÑO INDUSTRIAL · UNINORTE</p>
+    <h1>Aplique lumínico para un despertar progresivo</h1>
+    <p class="by">Jose Gabriel Vergara Naranjo</p>
+  </header>
+
   <main>
-    <h1>Página en construcción</h1>
-    <p>Pronto habrá contenido aquí.</p>
+    <section class="viewer" id="viewer" aria-label="Visor del modelo 3D">
+      <div class="halo" aria-hidden="true"></div>
+      <model-viewer id="mv"
+        src="modelo.glb"
+        alt="Modelo 3D del aplique mural: cuerpo redondo con frente inclinado y placa de montaje posterior"
+        camera-controls
+        touch-action="pan-y"
+        auto-rotate
+        auto-rotate-delay="1500"
+        rotation-per-second="16deg"
+        interaction-prompt="auto"
+        shadow-intensity="0.9"
+        shadow-softness="0.9"
+        exposure="1.05"
+        environment-image="neutral"
+        camera-orbit="35deg 75deg auto"
+        ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall">
+        <button slot="ar-button" class="ar-btn darkbtn">Ponlo en tu pared (AR)</button>
+      </model-viewer>
+
+      <div class="missing" id="missing" role="status">
+        <div class="drop">
+          <p><b>No se encontró <code>modelo.glb</code>.</b></p>
+          <p>Súbelo a la misma carpeta que este archivo, o arrastra aquí un archivo <code>.glb</code> para verlo.</p>
+          <button type="button" id="pick">Elegir archivo</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button type="button" class="solid" id="cycle">Simular ciclo de luz</button>
+        <button type="button" id="rotate">Pausar giro</button>
+        <button type="button" data-orbit="0deg 80deg auto">Frente</button>
+        <button type="button" data-orbit="90deg 80deg auto">Lado</button>
+        <button type="button" data-orbit="0deg 10deg auto">Arriba</button>
+        <button type="button" id="reset">Restablecer</button>
+        <input type="file" id="file" accept=".glb,.gltf,model/gltf-binary" hidden>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card yellow">
+        <h2>Adaptabilidad controlada</h2>
+        <p>Un aplique de pared junto a la cama que acompaña el despertar con una transición gradual de luz, sin cambios bruscos y con una interacción mínima.</p>
+      </div>
+
+      <div class="card">
+        <p class="num">01</p>
+        <h2>Cómo funciona</h2>
+        <p>Se configuran la intensidad y la temperatura. Un toque inicia el ciclo: la luz sube poco a poco, se mantiene unos 10 minutos y baja hasta apagarse. Otro toque lo interrumpe.</p>
+        <div class="timeline" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="tl-labels"><span>Sube</span><span>Se mantiene · 10 min</span><span>Baja</span></div>
+      </div>
+
+      <div class="card">
+        <p class="num">02</p>
+        <h2>Componentes</h2>
+        <ul>
+          <li>Carcasa en PETG con acabado mate y difusor translúcido.</li>
+          <li>LED integrado y LED indicador de batería y carga.</li>
+          <li>Batería interna recargable por USB-C.</li>
+          <li>Superficie táctil frontal y botones laterales de intensidad y temperatura.</li>
+          <li>Placa posterior con tornillos ocultos y acople deslizante.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <p class="num">03</p>
+        <h2>Cómo verlo</h2>
+        <p>Arrastra para girar y usa la rueda o pellizca para acercar. En el celular, toca «Ponlo en tu pared» para verlo a escala real en realidad aumentada.</p>
+      </div>
+    </aside>
   </main>
+
+  <footer>
+    <span>Universidad del Norte · Programa de Diseño Industrial · 2026</span>
+    <span>Visor: <a href="https://modelviewer.dev" target="_blank" rel="noopener">model-viewer</a></span>
+  </footer>
+</div>
+
+<script>
+  const mv = document.getElementById('mv');
+  const viewer = document.getElementById('viewer');
+  const missing = document.getElementById('missing');
+  const fileInput = document.getElementById('file');
+  const rotateBtn = document.getElementById('rotate');
+  const startOrbit = mv.getAttribute('camera-orbit');
+
+  mv.addEventListener('error', () => missing.classList.add('show'));
+  mv.addEventListener('load', () => missing.classList.remove('show'));
+
+  function stopRotate() { mv.removeAttribute('auto-rotate'); rotateBtn.textContent = 'Reanudar giro'; }
+  rotateBtn.addEventListener('click', () => {
+    if (mv.hasAttribute('auto-rotate')) { stopRotate(); }
+    else { mv.setAttribute('auto-rotate', ''); rotateBtn.textContent = 'Pausar giro'; }
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    mv.cameraOrbit = startOrbit; mv.fieldOfView = 'auto'; mv.jumpCameraToGoal();
+  });
+
+  document.querySelectorAll('[data-orbit]').forEach(b =>
+    b.addEventListener('click', () => { stopRotate(); mv.cameraOrbit = b.dataset.orbit; }));
+
+  // Simulación visual del ciclo: sube, se mantiene y baja (acelerado)
+  document.getElementById('cycle').addEventListener('click', () => {
+    viewer.classList.remove('cycle'); void viewer.offsetWidth; viewer.classList.add('cycle');
+    const base = 1.05;
+    const t0 = performance.now(), dur = 9000;
+    function step(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const k = p < 0.35 ? p / 0.35 : p < 0.65 ? 1 : 1 - (p - 0.65) / 0.35;
+      mv.exposure = 0.55 + k * 0.9;
+      if (p < 1) requestAnimationFrame(step); else mv.exposure = base;
+    }
+    requestAnimationFrame(step);
+  });
+
+  function loadLocal(file) {
+    if (!file || !/\.(glb|gltf)$/i.test(file.name)) return;
+    mv.src = URL.createObjectURL(file);
+  }
+  document.getElementById('pick').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => loadLocal(e.target.files[0]));
+  ['dragenter', 'dragover'].forEach(t => viewer.addEventListener(t, e => { e.preventDefault(); viewer.classList.add('dragging'); }));
+  ['dragleave', 'drop'].forEach(t => viewer.addEventListener(t, e => { e.preventDefault(); viewer.classList.remove('dragging'); }));
+  viewer.addEventListener('drop', e => loadLocal(e.dataTransfer.files[0]));
+</script>
 </body>
 </html>
